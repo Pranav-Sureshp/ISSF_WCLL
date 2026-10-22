@@ -1,8 +1,9 @@
 # ISSF_WCLL
 # OpenFOAM Workflow: Parallel Meshing & Simulation Guide
 
-This repository contains execution scripts and workflow instructions for parallel mesh generation using `snappyHexMesh` and running simulations with the custom solver `cEpotBuoyantFoam`.
+This repository contains execution scripts and workflow instructions for parallel mesh generation using `snappyHexMesh` and running simulations with the custom solver `cEpotBuoyantFoam` on Cumulus.
 
+Cluster used : Cumulus
 ---
 
 ## 📋 Table of Contents
@@ -116,7 +117,7 @@ chmod +x mesh.sh
 
 ## 🚀 Workflow Step 2: Running the Simulation
 
-Once meshing is completed successfully, run the custom solver `cEpotBuoyantFoam` using `run.sh`.
+Once meshing is completed successfully, run the custom solver `cEpotBuoyantFoam` using `cEpotBuoyantFoam.sh`.
 
 ### Shell Script: `run.sh`
 ```bash
@@ -130,6 +131,7 @@ source ~/.openfoam_v2206_profile
 
 if [[ ! $cores -eq 1 ]]
 then
+    decomposePar -allRegions 2>&1 | tee log.decompose
     mpirun -np $cores cEpotBuoyantFoam -parallel 2>&1 | tee log.cEpotBuoyantFoam
 else
     cEpotBuoyantFoam 2>&1 | tee log.cEpotBuoyantFoam
