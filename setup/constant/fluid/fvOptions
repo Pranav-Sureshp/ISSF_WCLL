@@ -1,0 +1,30 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2306                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvOptions;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+   
+energySource
+{
+    type            scalarSemiImplicitSource;
+    active          yes;
+
+    selectionMode   all;        // "all" means every cell in the fluid region only
+    volumeMode      specific;
+
+    sources
+    {
+        T           (0.6427 0);  // use 0.6427 if your TEqn is divided by rho*cp - 1.2e6 / (9838.01 × 189.8) 
+    }
+}

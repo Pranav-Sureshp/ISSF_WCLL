@@ -1,0 +1,75 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2206                                  |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    arch        "LSB;label=32;scalar=64";
+    class       polyBoundaryMesh;
+    location    "constant/solid/polyMesh";
+    object      boundary;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+7
+(
+    exterior
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          86731;
+        startFace       75031941;
+    }
+    fs_interface
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          11766;
+        startFace       75118672;
+    }
+    first_wall
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          6656;
+        startFace       75130438;
+    }
+    dwt_f_interface
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          34;
+        startFace       75137094;
+    }
+    dwt_inner
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          1125921;
+        startFace       75137128;
+    }
+    dwt_exterior
+    {
+        type            wall;
+        inGroups        1(wall);
+        nFaces          3792;
+        startFace       76263049;
+    }
+    solid_to_fluid
+    {
+        type            mappedWall;
+        inGroups        2(wall mappedPatch);
+        nFaces          4039067;
+        startFace       76266841;
+        sampleMode      nearestPatchFace;
+        sampleRegion    fluid;
+        samplePatch     fluid_to_solid;
+    }
+)
+
+// ************************************************************************* //
