@@ -6,25 +6,14 @@ The WCLL geometry is prepared in Coreform Cubit and exported as named ASCII STL 
 
 | Directory | Purpose |
 | --- | --- |
-| [`WCLL_mesh/`](WCLL_mesh/) | Cubit journals, the Python export script, and `fix_stl.sh` for normalising STL solid names |
+| [`WCLL_mesh/`](WCLL_mesh/) | Cubit journals and `fix_stl.sh` for normalising STL solid names |
 | [`snappyHexPMU/`](snappyHexPMU/) | OpenFOAM case for feature extraction, parallel volume meshing, region splitting, and mesh checks |
 
 ## Prepare the geometry in `WCLL_mesh/`
 
-1. In the Cubit journal, update the input path for `MINI_PMU_1BU.stp` and the STL output paths. The journals use geometry entity IDs from this model. Check the selected surfaces in Cubit if you change the CAD file or import options.
-2. Replay `Rupert_set_groups_v3.jou` for the detailed surface grouping. The journal imprints and merges the imported volumes, assigns named surface groups, triangulates them, and exports one ASCII STL per group. `Rupert_set_groups_v1.jou` is an earlier revision of the detailed workflow. `attempt3.jou` and `wcll_pmu.py` use a simpler grouping with `exterior`, `inlet`, `outlet`, `fluid_surface` (exported as `fluid.stl`), and `dwt`. The Python script also requires a local Cubit module path and NumPy.
+1. In the Cubit journal, update the input path for `MINI_PMU_1BU_24082026_v2.sab` and the STL output paths. The journals use geometry entity IDs from this model. Check the selected surfaces in Cubit if you change the CAD file or import options.
+2. Replay `SAB_v3_groups_baffle_mesh.jou` for the detailed surface grouping. 
 3. Put the individual STL files referenced by the OpenFOAM dictionaries in `snappyHexPMU/constant/triSurface/`. The detailed journals export `all_surfaces.stl` separately from the individual patch files. Use the set of files that matches the case dictionaries.
-
-The detailed journals export these patch files.
-
-| Surface group | STL file |
-| --- | --- |
-| Exterior surfaces | `exterior.stl` |
-| First wall | `first_wall.stl` |
-| Inlet and outlet | `inlet.stl`, `outlet.stl` |
-| Fluid–solid interface | `fs_interface.stl` |
-| DWT 1 fluid- and solid-side interfaces | `dwt1_f_interface.stl`, `dwt1_s_interface.stl` |
-| DWT 2 fluid- and solid-side interfaces | `dwt2_f_interface.stl`, `dwt2_s_interface.stl` |
 
 ### Match STL solid names to filenames
 
