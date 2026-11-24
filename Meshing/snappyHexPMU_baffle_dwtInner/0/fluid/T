@@ -1,0 +1,59 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v1912                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0/fluid";
+    object      T;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+dimensions       [0 0 0 1 0 0 0];
+
+
+internalField   uniform 573.0 ;
+
+
+boundaryField
+{
+
+    fs_interface
+    {
+        type            zeroGradient;
+    }
+    dwt_f_interface
+    {
+        type            fixedGradient;   //    -q/k_w = (-0.323e+06 / 27.244 ) // check if it is +ve
+        gradient        uniform -1.1855821e+04 ;
+    }
+
+    inlet
+    {
+        type        fixedValue;
+        value       uniform 568.0 ; // 295C
+    }
+    outlet
+    {
+        type        fixedValue;
+        value       uniform 601.0 ; // 328C
+    }
+    fluid_to_solid
+    {
+       type            solidWallMixedTemperatureCoupled; // solidWallMixedTemperatureCoupled
+       Tnbr            T;                                //
+       K               K;
+       value           uniform 568.0 ;
+    }
+}
+
+
+
+// ************************************************************************* //

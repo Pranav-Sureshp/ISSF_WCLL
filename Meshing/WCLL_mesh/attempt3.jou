@@ -1,0 +1,44 @@
+reset
+undo on
+
+import step "/home/pranav/OpenFOAM_cases/research/ISSF_2026_27_case/MINI_PMU_1BU.stp" heal
+
+merge tolerance 1e-4
+imprint tolerant volume all
+merge volume all
+
+group 'exterior' add surface in volume 1
+group 'inlet' add surface 292
+group 'outlet' add surface 293
+group 'fluid_surface' add surface in volume 4
+fluid_surface remove Surface 292 Surface 293 
+group 'dwt' add surface in volume  2 3
+
+set trimesher coarse off
+surface in group exterior scheme trimesh
+mesh surface in group exterior
+set trimesher coarse off
+surface in group inlet scheme trimesh
+mesh surface in group inlet
+set trimesher coarse off
+surface in group outlet scheme trimesh
+mesh surface in group outlet
+set trimesher coarse off
+surface in group fluid_surface scheme trimesh
+mesh surface in group fluid_surface
+set trimesher coarse off
+surface in group dwt scheme trimesh
+mesh surface in group dwt
+
+export stl ascii "/home/pranav/OpenFOAM_cases/research/ISSF_2026_27_case/snappyHexPMU/constant/triSurface/exterior.stl" surface in group exterior mesh  overwrite
+export stl ascii "/home/pranav/OpenFOAM_cases/research/ISSF_2026_27_case/snappyHexPMU/constant/triSurface/inlet.stl" surface in group  inlet mesh  overwrite
+export stl ascii "/home/pranav/OpenFOAM_cases/research/ISSF_2026_27_case/snappyHexPMU/constant/triSurface/outlet.stl" surface in group  outlet  mesh  overwrite
+export stl ascii "/home/pranav/OpenFOAM_cases/research/ISSF_2026_27_case/snappyHexPMU/constant/triSurface/fluid.stl" surface in group fluid_surface mesh overwrite
+export stl ascii "/home/pranav/OpenFOAM_cases/research/ISSF_2026_27_case/snappyHexPMU/constant/triSurface/dwt.stl" surface in group dwt mesh overwrite
+
+#! export STL ASCII '/home/pranav/OpenFOAM_cases/research/ISSF_2026_27_case/snappyHexPMU/constant/triSurface/exterior.stl'  group 2
+#! export STL ASCII '/home/pranav/OpenFOAM_cases/research/ISSF_2026_27_case/snappyHexPMU/constant/triSurface/inlet.stl'  group 3
+#! export STL ASCII '/home/pranav/OpenFOAM_cases/research/ISSF_2026_27_case/snappyHexPMU/constant/triSurface/outlet.stl'  group 4
+#! export STL ASCII '/home/pranav/OpenFOAM_cases/research/ISSF_2026_27_case/snappyHexPMU/constant/triSurface/fluid.stl'  group 5
+#! export STL ASCII '/home/pranav/OpenFOAM_cases/research/ISSF_2026_27_case/snappyHexPMU/constant/triSurface/dwt.stl'  group 6
+

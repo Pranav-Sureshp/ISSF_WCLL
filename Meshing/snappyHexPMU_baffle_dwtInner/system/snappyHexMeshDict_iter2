@@ -1,0 +1,468 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2306                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      snappyHexMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Which of the steps to run
+castellatedMesh true;
+snap            true;
+addLayers       true;
+
+
+// Geometry. Definition of all surfaces. All surfaces are of class
+// searchableSurface.
+// Surfaces are used
+// - to specify refinement for any mesh cell intersecting it
+// - to specify refinement for any mesh cell inside/outside/near
+// - to 'snap' the mesh boundary to the surface
+
+geometry
+{
+    exterior.stl
+    {
+        type    triSurfaceMesh;         name    exterior;
+    }
+    fs_interface.stl
+    {
+        type    triSurfaceMesh;         name    fs_interface;
+    }
+    baffle.stl
+    {
+        type    triSurfaceMesh;         name    baffle;
+    }
+    first_wall.stl
+    {
+        type    triSurfaceMesh;         name    first_wall;
+    }
+
+// dwt 
+    dwt_s_interface.stl
+    {
+        type    triSurfaceMesh;         name    dwt_s_interface;
+    }
+    dwt_f_interface.stl
+    {
+        type    triSurfaceMesh;         name    dwt_f_interface;
+    }
+    dwt_inner.stl
+    {
+        type    triSurfaceMesh;         name    dwt_inner ;
+    }
+    dwt_exterior.stl
+    {
+        type    triSurfaceMesh;         name    dwt_exterior ;
+    }
+
+// inlet and outlet    
+    inlet.stl
+    {
+        type    triSurfaceMesh;         name    inlet;
+    }
+    outlet.stl
+    {
+        type    triSurfaceMesh;         name    outlet;
+    }
+}
+
+
+// Settings for the castellatedMesh generation.
+castellatedMeshControls
+{
+    // Surface based refinement
+    // ~~~~~~~~~~~~~~~~~~~~~~~~
+
+    // Specifies two levels for every surface. The first is the minimum level,
+    // every cell intersecting a surface gets refined up to the minimum level.
+    // The second level is the maximum level. Cells that 'see' multiple
+    // intersections where the intersections make an
+    // angle > resolveFeatureAngle get refined up to the maximum level.
+
+    refinementSurfaces
+    {
+        exterior
+        {
+            level (0 0);  patchInfo { type wall; }
+        }
+        fs_interface
+        {
+            level (2 2);  patchInfo { type wall; }
+        }
+        baffle
+        {
+            level (2 2);  patchInfo { type wall; }
+        }
+
+        first_wall
+        {
+            level (0 0);  patchInfo { type wall; }
+        }
+
+// dwt interfaces
+        dwt_s_interface
+        {
+            level (2 2);  patchInfo { type wall; }
+        }
+        dwt_f_interface
+        {
+            level (2 2);  patchInfo { type wall; }
+        }
+        dwt_inner
+        {
+            level (2 2);  patchInfo { type wall; }
+        }
+        dwt_exterior
+        {
+            level (2 2);  patchInfo { type wall; }
+        }
+
+// inlet and outlet
+        inlet
+        {
+            level (0 0);             patchInfo { type patch; }
+        }
+        outlet
+        {
+            level (0 0);             patchInfo { type patch; }
+        }   
+
+    }
+
+    // Refinement parameters
+    // ~~~~~~~~~~~~~~~~~~~~~
+
+    // If local number of cells is >= maxLocalCells on any processor
+    // switches from from refinement followed by balancing
+    // (current method) to (weighted) balancing before refinement.
+    maxLocalCells 50000000;
+
+    // Overall cell limit (approximately). Refinement will stop immediately
+    // upon reaching this number so a refinement level might not complete.
+    // Note that this is the number of cells before removing the part which
+    // is not 'visible' from the keepPoint. The final number of cells might
+    // actually be a lot less.
+    maxGlobalCells 100000000;
+
+    // The surface refinement loop might spend lots of iterations refining just a
+    // few cells. This setting will cause refinement to stop if <= minimumRefine
+    // are selected for refinement. Note: it will at least do one iteration
+    // (unless the number of cells to refine is 0)
+    minRefinementCells 10;
+
+    // Allow a certain level of imbalance during refining
+    // (since balancing is quite expensive)
+    // Expressed as fraction of perfect balance (= overall number of cells /
+    // nProcs). 0=balance always.
+    maxLoadUnbalance 0.10;
+
+
+    // Number of buffer layers between different levels.
+    // 1 means normal 2:1 refinement restriction, larger means slower
+    // refinement.
+    nCellsBetweenLevels 5;
+
+    // Explicit feature edge refinement
+    // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    // Specifies a level for any cell intersected by its edges.
+    // This is a featureEdgeMesh, read from constant/triSurface for now.
+    // features // example
+    // (
+    //     {
+    //         file "motorBike.eMesh";
+    //         level 6;
+    //     }
+    // );
+    //features
+    //(
+    //    {
+    //        file    "blanket.eMesh";
+    //        level   0;
+    //    }
+    //);
+
+    features
+    (
+        { file "exterior.eMesh"; level 0; }
+        { file "fs_interface.eMesh";    level 0; }
+        { file "baffle.eMesh";    level 4; }
+        { file "first_wall.eMesh";    level 0; }
+
+        { file "dwt_s_interface.eMesh";      level 4; }
+        { file "dwt_f_interface.eMesh";      level 4; }
+        { file "dwt_inner.eMesh";      level 4; }
+        { file "dwt_exterior.eMesh";      level 4; }
+
+        { file "inlet.eMesh";    level 0; }
+        { file "outlet.eMesh";   level 0; }
+    );
+
+    // Resolve sharp angles
+    resolveFeatureAngle  30;
+
+    // Region-wise refinement
+    // ~~~~~~~~~~~~~~~~~~~~~~
+
+    // Specifies refinement level for cells in relation to a surface. One of
+    // three modes
+    // - distance. 'levels' specifies per distance to the surface the
+    //   wanted refinement level. The distances need to be specified in
+    //   descending order.
+    // - inside. 'levels' is only one entry and only the level is used. All
+    //   cells inside the surface get refined up to the level. The surface
+    //   needs to be closed for this to be possible.
+    // - outside. Same but cells outside.
+
+    // refinementRegions
+    // {
+    //     refinementBox
+    //     {
+    //         mode inside;
+    //         levels ((1E15 4));
+    //     }
+    // }
+    refinementRegions 
+    {
+        fs_interface
+        {
+          mode distance;
+          levels ((0.005 2) (0.02 1));
+        }
+    baffle          { mode distance; levels ((0.0005 4) (0.002 2) (0.02 1)) ; }
+
+    dwt_f_interface { mode distance; levels ((0.0005 4) (0.002 2) (0.02 1)) ; }
+    dwt_s_interface { mode distance; levels ((0.0005 4) (0.002 2) (0.02 1)) ; }
+    dwt_inner       { mode distance; levels ((0.0005 4) (0.002 2) (0.02 1)); }
+    dwt_exterior    { mode distance; levels ((0.0005 4) (0.002 2) (0.02 1)); }
+    }
+
+
+    // Mesh selection
+    // ~~~~~~~~~~~~~~
+
+    // After refinement patches get added for all refinementSurfaces and
+    // all cells intersecting the surfaces get put into these patches. The
+    // section reachable from the locationInMesh is kept.
+    // NOTE: This point should never be on a face, always inside a cell, even
+    // after refinement.
+    // locationInMesh (0.05568 0.10054 0.00587);
+    // locationInMesh (0.30068 0.50054 0.00587);   // in fluid near inlet, can see to outside
+
+    locationsInMesh
+    (
+        ((0.4     0.08    0.1305) fluid) // fluid
+        ((0.17     0.07    0.2) fluid) // fluid
+// 	((0.03    0.1     0.2)    fluid) // fluid
+//        ((0.16    0.01    0.258) solid) // exterior
+	((0.4     0.01      0.01)  solid) // exterior
+	((0.1     0.0218    0.173)  dwt ) // dwt
+
+    );
+    locationsOutsideMesh ((0.59   0.17   0.005));
+
+    // Whether any faceZones (as specified in the refinementSurfaces)
+    // are only on the boundary of corresponding cellZones or also allow
+    // free-standing zone faces. Not used if there are no faceZones.
+    allowFreeStandingZoneFaces true;
+}
+
+
+
+// Settings for the snapping.
+snapControls
+{
+    //- Number of patch smoothing iterations before finding correspondence
+    //  to surface
+    nSmoothPatch 2; // switching this off (0) prevents weird mesh morphing
+
+    //- Relative distance for points to be attracted by surface feature point
+    //  or edge. True distance is this factor times local
+    //  maximum edge length.
+    tolerance 1.0;
+
+    //- Number of mesh displacement relaxation iterations.
+    nSolveIter 40;
+
+    //- Maximum number of snapping relaxation iterations. Should stop
+    //  before upon reaching a correct mesh.
+    nRelaxIter 15; // 5
+
+    // Feature snapping
+
+        //- Number of feature edge snapping iterations.
+        //  Leave out altogether to disable.
+        nFeatureSnapIter 12;
+
+        //- Detect (geometric only) features by sampling the surface
+        //  (default=false).
+        implicitFeatureSnap false;
+
+        //- Use castellatedMeshControls::features (default = true)
+        explicitFeatureSnap true;
+
+        //- Detect points on multiple surfaces (only for explicitFeatureSnap)
+        multiRegionFeatureSnap true;
+}
+
+
+
+// Settings for the layer addition.
+addLayersControls
+{
+    // Are the thickness parameters below relative to the undistorted
+    // size of the refined cell outside layer (true) or absolute sizes (false).
+    relativeSizes false;
+
+    // Per final patch (so not geometry!) the layer information
+    layers
+    {
+        fs_interface
+        {
+           nSurfaceLayers 10;     expansionRatio 1.1;  firstLayerThickness 1.6e-5; 
+        }   
+        baffle
+        {
+           nSurfaceLayers 6;     expansionRatio 1.1;  firstLayerThickness 1.6e-5; 
+        }   
+
+        dwt_s_interface
+        {
+            nSurfaceLayers 8;     expansionRatio 1.1;  firstLayerThickness 1.6e-5; maxThicknessToMedialRatio 0.2;
+        }
+        dwt_f_interface
+        {
+            nSurfaceLayers 8;     expansionRatio 1.1;  firstLayerThickness 1.6e-5; maxThicknessToMedialRatio 0.2;
+        }
+        dwt_inner
+        {
+            nSurfaceLayers 8;     expansionRatio 1.1;  firstLayerThickness 1.6e-5; maxThicknessToMedialRatio 0.2;
+        }
+        dwt_exterior
+        {
+            nSurfaceLayers 10;     expansionRatio 1.1;  firstLayerThickness 1.6e-5; maxThicknessToMedialRatio 0.2;
+        }
+        exterior    { nSurfaceLayers 0; }
+        first_wall  { nSurfaceLayers 0; }
+    }
+
+    // Global settings:
+    // these can be overidden in the layers dict above
+    nSurfaceLayers 10;
+    
+    
+    // Expansion factor for layer mesh
+    expansionRatio 1.15;
+
+    // Thickness of first added cell layer.
+    firstLayerThickness 1.6e-5;
+
+    // Minimum thickness of cell layer. If for any reason layer
+    // cannot be above minThickness do not add layer.
+    // Relative to undistorted size of cell outside layer.
+    minThickness 5e-6;
+    
+    // If points get not extruded do nGrow layers of connected faces that are
+    // also not grown. This helps convergence of the layer addition process
+    // close to features.
+    // Note: changed(corrected) w.r.t 1.7.x! (didn't do anything in 1.7.x)
+    nGrow 0;
+
+    // Advanced settings
+
+    // When not to extrude surface. 0 is flat surface, 90 is when two faces
+    // are perpendicular
+    featureAngle  60;
+
+    // At non-patched sides allow mesh to slip if extrusion direction makes
+    // angle larger than slipFeatureAngle.
+    slipFeatureAngle 30;
+
+    // Maximum number of snapping relaxation iterations. Should stop
+    // before upon reaching a correct mesh.
+    nRelaxIter 15;
+
+    // Number of smoothing iterations of surface normals
+    nSmoothSurfaceNormals 2;
+    // nSmoothSurfaceNormals 1;
+
+    // Number of smoothing iterations of interior mesh movement direction
+    nSmoothNormals 5;
+    // nSmoothNormals 3;
+
+    // Smooth layer thickness over surface patches
+    nSmoothThickness 10;
+
+    // Stop layer growth on highly warped cells
+    maxFaceThicknessRatio 0.5;
+
+    // Reduce layer growth where ratio thickness to medial
+    // distance is large
+    maxThicknessToMedialRatio 0.3;
+
+    // Angle used to pick up medial axis points
+    // Note: changed(corrected) w.r.t 1.7.x! 90 degrees corresponds to 130
+    // in 1.7.x.
+    minMedialAxisAngle 90;
+
+
+    // Create buffer region for new layer terminations
+    nBufferCellsNoExtrude 0;
+
+
+    // Overall max number of layer addition iterations. The mesher will exit
+    // if it reaches this number of iterations; possibly with an illegal
+    // mesh.
+    nLayerIter 100; // 60
+}
+
+
+
+// Generic mesh quality settings. At any undoable phase these determine
+// where to undo.
+meshQualityControls
+{
+    #include "meshQualityDict"
+
+
+// Advanced
+//- Max skewness allowed. Set to <0 to disable.
+    maxBoundarySkewness 4;      // Keep at 4 (or lower to 2.5 for highly critical boundary layers)
+    maxInternalSkewness 2;      // Lower from 4 to 2 (Internal cells should ideally be highly orthogonal)
+    
+    //- Critical companion settings to force skewness correction
+    maxNonOrtho         65;     // Strict limit for non-orthogonality (Default is often 70-75)
+
+    //- Number of error distribution iterations
+    nSmoothScale 4;
+    //- Amount to scale back displacement at error points
+    errorReduction 0.75;
+}
+
+
+// Advanced
+
+// Write flags
+writeFlags
+(
+    scalarLevels
+    layerSets
+    layerFields     // write volScalarField for layer coverage
+);
+
+
+// Merge tolerance. Is fraction of overall bounding box of initial mesh.
+// Note: the write tolerance needs to be higher than this.
+mergeTolerance 1e-6;
+
+
+// ************************************************************************* //

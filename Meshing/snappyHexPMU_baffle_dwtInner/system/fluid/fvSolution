@@ -1,0 +1,151 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v1912                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+
+//p 
+    p_rgh
+    {
+        solver          GAMG;
+        tolerance       1e-06;
+        relTol          0.01;
+        smoother        GaussSeidel;
+    }
+
+    p_rghFinal
+    {
+        $p_rgh;
+        smoother        DICGaussSeidel;
+        tolerance       1e-06;
+        relTol          0;
+    }
+
+
+    "(U|T)"
+    {
+        solver smoothSolver;
+        smoother symGaussSeidel;
+        tolerance 1e-06;
+        relTol 0.01;
+    }
+    "(U|T)Final"
+    {
+        $U;
+        tolerance 1e-06;
+        relTol 0;
+    }
+
+   PotE
+    {
+      solver GAMG;
+        smoother        GaussSeidel;
+        tolerance 1e-06;
+        relTol 0.001;
+    };
+    PotEFinal
+    {
+        $PotE;
+        smoother        DICGaussSeidel;
+       tolerance 1e-06;
+    };
+
+//     "(p_rgh|g)"
+//    {
+//        solver           PCG;
+//        preconditioner   DIC;
+//        tolerance        1e-6;
+//        relTol           0.01;
+//    }
+//    
+//    "(p_rgh|g)Final"
+//    {
+//        solver           PCG;
+//        preconditioner   DIC;
+//        tolerance        1e-6;
+//        relTol           0;
+//    }
+   
+}
+
+PIMPLE
+{
+    nOuterCorrectors 5; // increase to 10
+    nCorrectors 2;
+    nNonOrthogonalCorrectors 5;
+    pRefCell 1001;
+    pRefValue 0;
+    PotERefCell               0;
+    PotERefValue              0;
+    TRefCell                  573;
+    TRefValue                 573;
+
+
+    
+     residualControl
+    {
+        U
+        {
+            relTol  0;
+            // if this tolerance is reached, leave
+            tolerance 1e-04;
+        }
+        T
+        {
+            relTol  0;
+            // if this tolerance is reached, leave
+            tolerance 1e-04;
+        }
+        p_rgh
+        {
+            tolerance       1e-4;
+            relTol          0;
+        }
+    }
+
+
+}
+
+relaxationFactors
+{
+    fields
+    {
+        p_rgh       0.8;
+//        p       0.8;
+//        pFinal  0.9; // Last outer loop
+        p_rghFinal  0.9; // Last outer loop
+    }
+    equations
+    {
+        U       0.9;
+        UFinal  0.9;
+        T       0.9;
+        TFinal  0.9;
+        PotE      0.9;
+        PotEFinal 0.9;
+    }
+}
+
+PotE
+{
+    nCorrectors     1;
+    nNonOrthogonalCorrectors 0;
+    PotERefCell        0;
+    PotERefValue       0;
+}
+
+
+// ************************************************************************* //

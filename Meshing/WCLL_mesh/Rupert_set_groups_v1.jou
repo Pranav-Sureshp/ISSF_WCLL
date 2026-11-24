@@ -1,0 +1,170 @@
+reset
+undo on
+
+import step "/home/pranav/OpenFOAM_cases/research/ISSF_2026_27_case/MINI_PMU_1BU.stp" noheal
+
+
+#! ------------- imprint & merge  ------------------------------ 
+
+imprint volume all
+merge volume all
+
+#! ------------- create groups ------------------------------ 
+
+create group "dwt1_f_interface"
+group dwt1_f_interface add surface 5 6 10 11 47 49 51 52 53 54 55 56 57 58 59 69 70 78 80 81 84 108 109 110 111 112 113 114 115 116 117 118 119 120 121 122 123 124 125 126 127 129 130 131 199 200 262 263 79
+
+create group "dwt1_s_interface"
+group dwt1_s_interface add surface 5 6 10 11 76 
+group dwt1_f_interface remove surface in dwt1_s_interface
+
+create group "dwt2_f_interface"
+group dwt2_f_interface add surface 1 2 3 4 32 33 36 37 137 139 140 147 148 149 151 152 155 156 165 170 172 174 180 181 182 184 210 211 212 213 232 233 234 235
+
+create group "dwt2_s_interface"
+group dwt2_s_interface add surface 1 2 3 4 32 33 36 37 187 188 
+group dwt2_f_interface remove surface in dwt2_s_interface
+
+create group "exterior"
+group exterior add surface 9 19 38 39 44 45 
+
+create group "first_wall"
+group first_wall add surface 19
+group exterior remove surface in first_wall
+
+create group "fs_interface"
+fs_interface add surface 7 8 12 13 14 15 16 17 18 20 21 22 23 24 25 26 27 28 29 30 31 34 35 40 41 42 43
+
+create group "inlet"
+group inlet add surface 292
+
+create group "outlet"
+group outlet add surface 293 
+
+create group "all_surfaces"
+group all_surfaces add surface in group 2 to 10
+
+#! --------------  mesh each group -------------------------
+
+set trimesher coarse off
+
+set trimesher geometry sizing on
+set trimesher surface gradation 1.15
+set trimesher volume gradation 1.15
+
+set trimesher split overconstrained edges on
+
+#! --------------- dwt curvature grading -------------------
+#! group dwt1_f_interface , dwt1_s_interface , dwt2_f_interface , dwt2_s_interface
+
+
+#! surface 187
+curve in surface 187 interval 60
+mesh curve in surface 187
+#! surface 76
+curve in surface 76 interval 60
+mesh curve in surface 76
+#! surface 188
+curve in surface 188 interval 60
+mesh curve in surface 188
+#! surface 79
+curve in surface 79 interval 60
+mesh curve in surface 79
+
+
+curve in surface in group dwt1_s_interface size 0.00025
+mesh curve in surface in group dwt1_s_interface
+curve in surface in group dwt2_s_interface size 0.00025
+mesh curve in surface in group dwt2_s_interface
+curve in surface in group dwt1_f_interface size 0.00025
+mesh curve in surface in group dwt1_f_interface
+curve in surface in group dwt2_f_interface size 0.00025
+mesh curve in surface in group dwt2_f_interface
+
+
+#! --------------- dwt1_f_interface ------------------------------
+set trimesher geometry sizing on
+
+surface in group dwt1_f_interface scheme trimesh
+mesh surface in group dwt1_f_interface
+
+#! --------------- dwt1_s_interface ------------------------------
+set trimesher geometry sizing on
+surface in group dwt1_s_interface scheme trimesh
+mesh surface in group dwt1_s_interface
+
+#! --------------- dwt2_f_interface ------------------------------
+set trimesher geometry sizing on
+surface in group dwt2_f_interface scheme trimesh
+mesh surface in group dwt2_f_interface
+
+
+#! --------------- dwt2_s_interface ------------------------------
+set trimesher geometry sizing on
+surface in group dwt2_s_interface scheme trimesh
+mesh surface in group dwt2_s_interface
+
+
+#! --------------- inlet & outlet   ------------------------------
+#! refinement 0.005 ,
+#!curve in surface in group inlet size 0.0002
+
+curve in surface 292 interval 120
+surface in group inlet scheme trimesh
+
+mesh surface in group inlet
+
+#! curve in surface in group outlet size 0.0002
+
+curve 30 64 61 82  interval 120
+surface in group outlet scheme trimesh
+
+mesh surface in group outlet
+
+
+
+#! --------------- first_wall ------------------------------
+set trimesher geometry sizing on
+curve in surface in group first_wall size 0.001
+surface in group first_wall scheme trimesh
+mesh surface in group first_wall
+
+
+#! --------------- fs_interface      ------------------------------
+set trimesher geometry sizing on
+curve in surface in group fs_interface size 0.0008
+surface in group fs_interface scheme trimesh
+mesh surface in group fs_interface
+
+
+#! --------------- exterior         ------------------------------
+set trimesher geometry sizing on
+curve in surface in group exterior size 0.001
+surface in group exterior scheme trimesh
+mesh surface in group exterior
+
+#! --------------- all_surfaces      ------------------------------
+#! surface in group all_surfaces scheme trimesh
+#! mesh surface in group all_surfaces
+
+
+#!------------------ export stl -----------------------------------
+
+export stl ascii "/home/pranav/OpenFOAM_cases/research/ISSF_2026_27_case/cubit_mesh/more_refined_mesh/triSurface/first_wall.stl" surface in group first_wall mesh  overwrite
+
+export stl ascii "/home/pranav/OpenFOAM_cases/research/ISSF_2026_27_case/cubit_mesh/more_refined_mesh/triSurface/dwt1_f_interface.stl" surface in group  dwt1_f_interface mesh  overwrite
+export stl ascii "/home/pranav/OpenFOAM_cases/research/ISSF_2026_27_case/cubit_mesh/more_refined_mesh/triSurface/dwt2_f_interface.stl" surface in group  dwt2_f_interface mesh  overwrite
+
+export stl ascii "/home/pranav/OpenFOAM_cases/research/ISSF_2026_27_case/cubit_mesh/more_refined_mesh/triSurface/dwt1_s_interface.stl" surface in group  dwt1_s_interface mesh  overwrite
+export stl ascii "/home/pranav/OpenFOAM_cases/research/ISSF_2026_27_case/cubit_mesh/more_refined_mesh/triSurface/dwt2_s_interface.stl" surface in group  dwt2_s_interface mesh  overwrite
+
+export stl ascii "/home/pranav/OpenFOAM_cases/research/ISSF_2026_27_case/cubit_mesh/more_refined_mesh/triSurface/inlet.stl" surface in group  inlet  mesh  overwrite
+
+export stl ascii "/home/pranav/OpenFOAM_cases/research/ISSF_2026_27_case/cubit_mesh/more_refined_mesh/triSurface/outlet.stl" surface in group  outlet  mesh  overwrite
+
+export stl ascii "/home/pranav/OpenFOAM_cases/research/ISSF_2026_27_case/cubit_mesh/more_refined_mesh/triSurface/fs_interface.stl" surface in group fs_interface mesh overwrite
+
+export stl ascii "/home/pranav/OpenFOAM_cases/research/ISSF_2026_27_case/cubit_mesh/more_refined_mesh/triSurface/exterior.stl" surface in group exterior mesh overwrite
+
+
+export stl ascii "/home/pranav/OpenFOAM_cases/research/ISSF_2026_27_case/cubit_mesh/more_refined_mesh/all_surfaces.stl" surface in group all_surfaces overwrite
